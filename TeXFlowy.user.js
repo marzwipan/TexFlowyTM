@@ -300,8 +300,8 @@ global WF:false
         oldfocusedItemID = WF.currentItem().getId();
         currentID = oldfocusedItemID;
     });
-      document.addEventListener("keydown",wfEventListener);
-//    document.addEventListener("click",wfEventListener);
+    document.addEventListener("keydown",wfEventListener);
+    document.addEventListener("click",wfEventListener);
 //    callAfterDocumentLoaded(watchpage);
 
 })();
