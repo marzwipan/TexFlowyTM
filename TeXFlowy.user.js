@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TeXFlowy
 // @namespace    https://github.com/marzwipan
-// @version      0.1.2.1
+// @version      0.1.2.2
 // @description  Supports formula rendering in WorkFlowy with KaTeX
 // @author       Marzwipan
 // @match        https://workflowy.com/*
@@ -12,7 +12,7 @@
 // @resource     KATEX_CSS https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css
 // @grant        GM_getResourceText
 // @grant        GM_addStyle
-// Newest addition: Notes that contain LaTeX stay expanded.
+// Newest addition: Try to use blur and focus
 // ==/UserScript==
 
 // ESLint globals from WorkFlowy:
@@ -134,17 +134,30 @@ global WF:false
             return;
         };
         renderMathViaKatex(currentElem);
-        const allnotes = currentElem.querySelectorAll('.notes');
-        for (let i = 0; i< allnotes.length; i++) {
-            if (allnotes[i].querySelector('.katex')) {
-                console.log(allnotes[i]);
-                allnotes[i].querySelector('.content').style.display = 'block';
-                allnotes[i].querySelector('.content').style.height = 'auto';
-                allnotes[i].querySelector('.content').style.maxHeight = 'none';
-                allnotes[i].querySelector('.content').style.overflow = 'visible';
+        const allcontent = currentElem.querySelectorAll('.content');
+        for (const content of allcontent) {
+            if (content.querySelector('.katex')) {
+                content.onblur =  function (e) {
+                    console.log('content blur');
+                    renderMathViaKatex(content);
+                };
+                content.onfocus = function (e) {
+                    console.log('content focus');
+                    const texelement = katexReplaceWithTex(content);
+                };
             };
         };
-     //   const all_latex_notes = appEl.querySelectorAll('.notes .content')
+        const allnotes = currentElem.querySelectorAll('.notes');
+        for (const note of allnotes) {
+            if (note.querySelector('.katex')) {
+                const notecontent = note.querySelector('.content');
+                notecontent.style.display = 'block';
+                notecontent.style.height = 'auto';
+                notecontent.style.maxHeight = 'none';
+                notecontent.style.overflow = 'visible';
+            };
+        };
+        //   const all_latex_notes = appEl.querySelectorAll('.notes .content')
     }
 
    /**
@@ -231,6 +244,19 @@ global WF:false
                         console.log('New: ');
                         console.log(currentID);
                         renderMathViaKatex(oldfocuselement);
+                        const allcontent = oldfocuselement.querySelectorAll('.content');
+                        for (const content of allcontent) {
+                            if (content.querySelector('.katex')) {
+                                content.onblur =  function (e) {
+                                    console.log('content blur');
+                                    renderMathViaKatex(content);
+                                };
+                                content.onfocus = function (e) {
+                                    console.log('content focus');
+                                    const texelement = katexReplaceWithTex(content);
+                                };
+                            };
+                        };
                         const allnotes = oldfocuselement.querySelectorAll('.notes');
                         for (let i = 0; i< allnotes.length; i++) {
                             if (allnotes[i].querySelector('.katex')) {
@@ -274,8 +300,8 @@ global WF:false
         oldfocusedItemID = WF.currentItem().getId();
         currentID = oldfocusedItemID;
     });
-    document.addEventListener("keydown",wfEventListener);
-    document.addEventListener("click",wfEventListener);
-    callAfterDocumentLoaded(watchpage);
+      document.addEventListener("keydown",wfEventListener);
+//    document.addEventListener("click",wfEventListener);
+//    callAfterDocumentLoaded(watchpage);
 
 })();
