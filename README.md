@@ -7,3 +7,5 @@
  Load Workflowy.
 
 Now you have LaTeX in Workflowy!
+
+Love it? You can buy me a coffee at https://buymeacoffee.com/marzwipan 
