@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TeXFlowy-with-AsciiMath
 // @namespace    https://github.com/marzwipan
-// @version      0.3.0
+// @version      0.3.1
 // @description  Supports formula rendering in WorkFlowy with KaTeX. Also supports AsciiMath.
 // @author       Betty and Martin
 // @match        https://workflowy.com/*
@@ -30,6 +30,7 @@
 
 		load_css();
 
+        hide_raw();
 	}
 
 
@@ -71,9 +72,8 @@
 		if (parent.nextSibling && parent.nextSibling.classList.contains('rendered-latex')) {
 			parent.nextSibling.remove();
 
-			// also remove the blur and focus functions we added previously
-            parent.onfocus = null;
-            parent.onblur = null;
+			// also remove the class name we added previously
+			node.classList.remove('has-latex');
 
 		}
 
@@ -81,6 +81,13 @@
 		if (!has_latex(node) && !has_asciimath(node)) {
 			return;
 		}
+
+        // checks whether it's a note
+        var isnote = parent.parentElement.classList.contains('notes');
+
+   		// give the parent a class name so we can handle it later
+		node.classList.add('has-latex');
+        parent.classList.add('has-latex');
 
 		// add an element to contain the rendered latex
 		const container = document.createElement('div');
@@ -93,17 +100,21 @@
 		// replicate this class name of the parent so that the rendered block can preserve WF's original style
 		container.classList.add(parent.classList[1]);
         container.classList.add(parent.classList[2]);
-        parent.onfocus =  function (e) {
-            parent.style.height = 'auto';
-            container.style.display = 'none';
-            node.style.display = 'inline';
-        };
-        parent.onblur = function (e) {
-            container.style.display = 'inline';
-            node.style.display = 'none';
-            parent.style.height = '0';
-            parent.style.minHeight = '0';
-        };
+
+       if (isnote) {
+           parent.onfocus =  function (e) {
+               parent.style.height = 'auto';
+ //              container.style.display = 'none';
+ //              node.style.display = 'inline';
+           };
+           parent.onblur = function (e) {
+ //              container.style.display = 'inline';
+ //              node.style.display = 'none';
+               parent.style.height = '0';
+               parent.style.minHeight = '0';
+           };
+       };
+
         // render it
 		const options = {
 			delimiters: [
@@ -112,11 +123,13 @@
 			]
 		};
 		renderMathInElement(container, options);
-        parent.onblur();
+        if (isnote) {
+            parent.onblur();
+        };
 
 		// when the element is clicked, make the focus in the corresponding node so that the user can begin typing
-		container.addEventListener('click', () => {
-           	parent.focus();
+		container.addEventListener('click', (e) => {
+            parent.focus();
 		});
 
 	}
@@ -205,6 +218,29 @@
         );
     }
 
+
+	/**
+	 * hide the raw content with LaTeX. only shows it when it has focus
+	 */
+	function hide_raw() {
+		GM_addStyle('.name .innerContentContainer.has-latex  { display:none } ');
+		GM_addStyle('.name .content.has-latex { height: 0; min-height: 0 } ');
+
+		GM_addStyle('.name--focused .has-latex .innerContentContainer { display:inline} ');
+		GM_addStyle('.name--focused .has-latex.content { height: auto} ');
+        GM_addStyle('.name--focused .rendered-latex { display:none } ')
+
+		// add a background to make the raw part look clearer
+//		GM_addStyle('.name--focused .has-latex { background: #eee } ');
+
+        GM_addStyle('.notes .innerContentContainer.has-latex {display: none}');
+        GM_addStyle('.notes .active .innerContentContainer.has-latex  { display:inline} ');
+
+        GM_addStyle('.notes .rendered-latex { overflow: visible ;\n display: block; \n  max-height: none ; \n height: auto ; \n}');
+        GM_addStyle('.notes .active ~ .rendered-latex { display:none }');
+
+
+	}
 
 
 })();
