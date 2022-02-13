@@ -94,13 +94,11 @@
 		container.classList.add(parent.classList[1]);
         container.classList.add(parent.classList[2]);
         parent.onfocus =  function (e) {
-            console.log('content focus');
             parent.style.height = 'auto';
             container.style.display = 'none';
             node.style.display = 'inline';
         };
         parent.onblur = function (e) {
-            console.log('content blur');
             container.style.display = 'inline';
             node.style.display = 'none';
             parent.style.height = '0';
