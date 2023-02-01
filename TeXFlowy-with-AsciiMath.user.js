@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TexFlowy-with-AsciiMath
 // @namespace    https://github.com/marzwipan
-// @version      0.3.2
+// @version      0.3.3
 // @description  Supports formula rendering in WorkFlowy with KaTeX. Also supports AsciiMath.
 // @author       Betty and Martin
 // @match        https://workflowy.com/*
@@ -225,10 +225,10 @@
 	 */
 	function hide_raw() {
 		GM_addStyle('.name .innerContentContainer.has-latex  { display:none } ');
-		GM_addStyle('.name .content.has-latex {    flex: 0 0 auto; padding-right: 0px; display:block} ');
+		GM_addStyle('.name .content.has-latex {    display:flex; flex: 0 0 auto; padding-right: 0px; min-height:0px; height:0px} ');
 
 		GM_addStyle('.name--focused .has-latex .innerContentContainer { display:inline} ');
-        GM_addStyle('.name--focused .has-latex { display:flex} ');
+        GM_addStyle('.name.name--focused .has-latex { display: flex; flex: 1 1 auto; padding-right: 10px; height:auto} ');
         GM_addStyle('.name--focused .rendered-latex { display:none } ')
 
 		// add a background to make the raw part look clearer
@@ -237,9 +237,9 @@
         GM_addStyle('.notes .innerContentContainer.has-latex {display: none}');
         GM_addStyle('.notes .active .innerContentContainer.has-latex  { display:inline} ');
 
-        GM_addStyle('.notes .rendered-latex { overflow: visible ;\n display: block; \n  max-height: none ; \n height: auto ; color: rgb(0,0,0) \n}');
+        GM_addStyle('.notes .rendered-latex { overflow: visible ;\n display: block; \n  max-height: none ; \n height: auto ;  \n}');
         GM_addStyle('.notes .active ~ .rendered-latex { display:none }');
-        GM_addStyle('.notes .content { color: rgb(0,0,0) !important }');
+//        GM_addStyle('.notes .content { color: rgb(0,0,0) !important }');
 
 
 	}
